@@ -26,7 +26,7 @@ So this product **measures page transfer size itself** (fast crawl and/or Playwr
 
 | Area | Choice |
 |------|--------|
-| Packaging | Docker (host TBD) |
+| Packaging | Docker, self-hosted |
 | App | Next.js (planned) |
 | Database | Postgres |
 | Measure | Fast crawl (default) + Playwright (accurate) |
