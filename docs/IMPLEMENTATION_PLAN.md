@@ -39,7 +39,7 @@ Paste URL  →  POST /api/analyze { url, mode }
 
 A backend is required: Website Carbon has no reliable CORS; byte measurement and greencheck should not run blindly from the browser (SSRF, CORS, future secrets).
 
-**Packaging:** Docker image, **self-hosted** via `docker-compose` (app + Postgres; optional Caddy/nginx).
+**Packaging:** Docker Compose, **self-hosted** — `caddy` + `app` (Next.js) + `postgres`. Optional later: `worker` ± `redis`.
 
 ---
 
@@ -47,15 +47,20 @@ A backend is required: Website Carbon has no reliable CORS; byte measurement and
 
 | Layer | Choice | Why |
 |-------|--------|-----|
-| Packaging | Docker | Portable; required |
-| App | Next.js (App Router) | UI + API routes in one service |
-| Measure (default) | Fast crawl (HTML + linked assets) | Quicker / cheaper |
-| Measure (accurate) | Playwright | Real transfer size on load |
-| Emissions | Website Carbon `/data` + CO2.js fallback | Sustainable Web Design model |
+| Language | TypeScript | One language across UI, API, measure |
+| Packaging | Docker Compose (self-hosted) | Required deploy shape |
+| App | Next.js (App Router) monolith | UI + API in one service for MVP |
+| ORM | Prisma + Postgres 16 | Migrations + typed queries |
+| Measure (default) | Fast crawl (`fetch` + cheerio/linkedom) | Quicker / cheaper |
+| Measure (accurate) | Playwright (Chromium) | Real transfer size on load |
+| Jobs | Postgres job table | No Redis until multi-replica |
+| Cache / rate limits | Postgres | Single dependency; Redis later if needed |
+| Emissions | Website Carbon `/data` + CO2.js (`@tgwf/co2`) | Sustainable Web Design model |
 | Grid | GWF IP → CO₂ intensity | Global coverage |
-| DB | Postgres | Results, cache, API keys, rate-limit state |
-| Auth | Optional | Anonymous OK; API keys for higher limits |
-| Host | Self-hosted | Own VPS/server via Docker Compose |
+| Auth | API keys (hashed in Postgres) | Optional; Auth.js later for login UI |
+| Proxy | Caddy | Auto HTTPS for self-host |
+| Logging | pino | Structured logs via Docker |
+| Tests | Vitest | Unit-test guards and helpers |
 
 ---
 
@@ -153,7 +158,7 @@ Visual direction: earthy / forest energy; avoid generic purple SaaS. Grade is th
 
 | Phase | Deliverable |
 |-------|-------------|
-| **0** | Docker + Compose (self-hosted) + Next.js scaffold, URL guard, mock scorer, Postgres wiring |
+| **0** | Docker Compose (`caddy` + `app` + `postgres`) + Next.js/Prisma scaffold, URL guard, mock scorer |
 | **1** | Greencheck + Website Carbon `/data` (mock/fast bytes), basic result UI |
 | **2** | Fast crawl measurement + Playwright accurate mode |
 | **3** | GWF grid footnote + fixes heuristics |
@@ -198,4 +203,4 @@ Cite data providers in the product UI/footer where required:
 
 ## Next implementation step
 
-Scaffold **self-hosted Docker Compose + Next.js + Postgres** and complete **Phase 0–1**: URL guard, greencheck, Website Carbon `/data` with fast/mock bytes, and a working result UI.
+Scaffold **self-hosted Docker Compose (Caddy + Next.js + Prisma/Postgres)** and complete **Phase 0–1**: URL guard, greencheck, Website Carbon `/data` with fast/mock bytes, and a working result UI.
