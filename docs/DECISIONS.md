@@ -4,7 +4,7 @@ Locked decisions for Green Hosting Score (placeholder name; final brand TBD).
 
 | # | Decision | Choice |
 |---|----------|--------|
-| 1 | Packaging | **Docker** (cloud host TBD) |
+| 1 | Packaging / host | **Docker, self-hosted** |
 | 2 | Database | **Postgres** |
 | 3 | Grid intensity | **GWF IP → CO₂ intensity** |
 | 4 | Measurement | **Both** — fast crawl (default) + Playwright (accurate) |
@@ -19,4 +19,4 @@ Locked decisions for Green Hosting Score (placeholder name; final brand TBD).
 
 - Final product name postponed after trademark/search collisions for **GreenScore** and **GreenMark**.
 - Monetization undecided: design optional API keys and quotas without assuming paid tiers.
-- Docker image should stay portable; pick Fly/Railway/Render/etc. when deploying.
+- Deploy target is **self-hosted** (own VPS/server). Ship `Dockerfile` + `docker-compose` (app + Postgres + optional reverse proxy).
