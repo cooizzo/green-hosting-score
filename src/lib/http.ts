@@ -1,4 +1,4 @@
-const USER_AGENT =
+export const USER_AGENT =
   "GreenHostingScore/0.1 (+https://github.com/cooizzo/green-hosting-score)";
 
 export class ExternalApiError extends Error {

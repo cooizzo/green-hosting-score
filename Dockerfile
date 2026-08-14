@@ -7,6 +7,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 FROM base AS deps
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma
 RUN npm ci
@@ -33,6 +34,8 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/next.config.ts ./
 COPY docker/app-entrypoint.sh /app-entrypoint.sh
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN npx playwright install --with-deps chromium
 RUN chmod +x /app-entrypoint.sh && chown -R nextjs:nodejs /app
 RUN sed -i 's/\r$//' /app-entrypoint.sh
 

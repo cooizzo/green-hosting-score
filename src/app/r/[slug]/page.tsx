@@ -36,12 +36,6 @@ export default async function ResultPage({ params }: Props) {
         {result.mocked && (
           <p className="badge-warn">Mock score — live Greencheck / Website Carbon skipped</p>
         )}
-        {!result.mocked && (
-          <p className="badge-warn">
-            Green hosting and gCO₂e are live. Transfer size is still estimated until crawl / Playwright
-            land.
-          </p>
-        )}
       </section>
 
       <section className="meta-grid">

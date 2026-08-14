@@ -17,11 +17,13 @@ services:
   app:
     build: .
     restart: unless-stopped
+    shm_size: "1gb"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-ghs}:${POSTGRES_PASSWORD:-ghs}@postgres:5432/${POSTGRES_DB:-ghs}?schema=public
       MOCK_SCORER: ${MOCK_SCORER:-false}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost}
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     depends_on:
       postgres:
         condition: service_healthy

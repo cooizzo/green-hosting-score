@@ -14,6 +14,13 @@ const BLOCKED_HOSTNAMES = new Set([
   "metadata",
 ]);
 
+const DNS_TTL_MS = 60_000;
+const dnsCache = new Map<string, { expiresAt: number; ips: string[] }>();
+
+export function clearDnsCache(): void {
+  dnsCache.clear();
+}
+
 function isPrivateIp(ip: string): boolean {
   const v = ip.toLowerCase();
   if (v === "::1" || v === "0.0.0.0") return true;
@@ -79,20 +86,26 @@ export async function guardUrl(input: string): Promise<SafeUrl> {
     }
     resolvedIps.push(hostname);
   } else {
-    let records: { address: string; family: number }[];
-    try {
-      records = await lookup(hostname, { all: true, verbatim: true });
-    } catch {
-      throw new UrlGuardError("Could not resolve hostname");
-    }
-    if (!records.length) {
-      throw new UrlGuardError("Could not resolve hostname");
-    }
-    for (const r of records) {
-      if (isPrivateIp(r.address)) {
-        throw new UrlGuardError("Hostname resolves to a private or local address");
+    const cached = dnsCache.get(hostname);
+    if (cached && cached.expiresAt > Date.now()) {
+      resolvedIps.push(...cached.ips);
+    } else {
+      let records: { address: string; family: number }[];
+      try {
+        records = await lookup(hostname, { all: true, verbatim: true });
+      } catch {
+        throw new UrlGuardError("Could not resolve hostname");
       }
-      resolvedIps.push(r.address);
+      if (!records.length) {
+        throw new UrlGuardError("Could not resolve hostname");
+      }
+      for (const r of records) {
+        if (isPrivateIp(r.address)) {
+          throw new UrlGuardError("Hostname resolves to a private or local address");
+        }
+        resolvedIps.push(r.address);
+      }
+      dnsCache.set(hostname, { expiresAt: Date.now() + DNS_TTL_MS, ips: [...resolvedIps] });
     }
   }
 
