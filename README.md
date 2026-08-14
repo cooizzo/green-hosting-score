@@ -8,7 +8,7 @@ This repository currently holds the **implementation plan** and product document
 
 ## Docs
 
-- [Product decisions](./docs/DECISIONS.md) — locked stack and product choices
+- [Product decisions](./docs/DECISIONS.md) — locked product + tech stack choices
 - [Implementation plan](./docs/IMPLEMENTATION_PLAN.md) — architecture, APIs, modules, phases, risks
 - [Product brief](./docs/PRODUCT.md) — one-liner, MVP scope, success criteria
 
@@ -26,14 +26,16 @@ So this product **measures page transfer size itself** (fast crawl and/or Playwr
 
 | Area | Choice |
 |------|--------|
-| Packaging | Docker, self-hosted |
-| App | Next.js (planned) |
-| Database | Postgres |
+| Deploy | Docker Compose, self-hosted (`caddy` + `app` + `postgres`) |
+| App | Next.js (App Router) + TypeScript |
+| ORM | Prisma + Postgres 16 |
 | Measure | Fast crawl (default) + Playwright (accurate) |
-| Auth | Optional |
+| Jobs | Postgres job table (Redis later) |
+| Auth | Optional API keys |
 | Limits | 5/IP/day anonymous; per API key when authed |
-| Cache | 24h per URL + mode |
+| Cache | 24h per URL + mode (Postgres) |
 | Results | Domain-slug URLs |
+| Proxy | Caddy |
 | License | MIT |
 
 ## Status
