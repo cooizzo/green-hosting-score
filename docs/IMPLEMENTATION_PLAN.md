@@ -39,7 +39,7 @@ Paste URL  →  POST /api/analyze { url, mode }
 
 A backend is required: Website Carbon has no reliable CORS; byte measurement and greencheck should not run blindly from the browser (SSRF, CORS, future secrets).
 
-**Packaging:** Docker image (portable). Cloud host TBD (Fly / Railway / Render / etc.).
+**Packaging:** Docker image, **self-hosted** via `docker-compose` (app + Postgres; optional Caddy/nginx).
 
 ---
 
@@ -55,7 +55,7 @@ A backend is required: Website Carbon has no reliable CORS; byte measurement and
 | Grid | GWF IP → CO₂ intensity | Global coverage |
 | DB | Postgres | Results, cache, API keys, rate-limit state |
 | Auth | Optional | Anonymous OK; API keys for higher limits |
-| Host | TBD | Decide at deploy time |
+| Host | Self-hosted | Own VPS/server via Docker Compose |
 
 ---
 
@@ -153,7 +153,7 @@ Visual direction: earthy / forest energy; avoid generic purple SaaS. Grade is th
 
 | Phase | Deliverable |
 |-------|-------------|
-| **0** | Docker + Next.js scaffold, URL guard, mock scorer, Postgres wiring |
+| **0** | Docker + Compose (self-hosted) + Next.js scaffold, URL guard, mock scorer, Postgres wiring |
 | **1** | Greencheck + Website Carbon `/data` (mock/fast bytes), basic result UI |
 | **2** | Fast crawl measurement + Playwright accurate mode |
 | **3** | GWF grid footnote + fixes heuristics |
@@ -198,4 +198,4 @@ Cite data providers in the product UI/footer where required:
 
 ## Next implementation step
 
-Scaffold **Docker + Next.js + Postgres** and complete **Phase 0–1**: URL guard, greencheck, Website Carbon `/data` with fast/mock bytes, and a working result UI.
+Scaffold **self-hosted Docker Compose + Next.js + Postgres** and complete **Phase 0–1**: URL guard, greencheck, Website Carbon `/data` with fast/mock bytes, and a working result UI.
