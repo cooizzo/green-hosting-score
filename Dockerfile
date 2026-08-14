@@ -3,7 +3,7 @@
 FROM node:22-bookworm-slim AS base
 WORKDIR /app
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && apt-get install -y --no-install-recommends openssl ca-certificates gosu \
   && rm -rf /var/lib/apt/lists/*
 
 FROM base AS deps
@@ -35,10 +35,10 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/next.config.ts ./
 COPY docker/app-entrypoint.sh /app-entrypoint.sh
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-RUN npx playwright install --with-deps chromium
+# OS libs only — Chromium binaries live in the playwright_browsers volume
+RUN npx playwright install-deps chromium
 RUN chmod +x /app-entrypoint.sh && chown -R nextjs:nodejs /app
 RUN sed -i 's/\r$//' /app-entrypoint.sh
 
-USER nextjs
 EXPOSE 3000
 ENTRYPOINT ["/app-entrypoint.sh"]

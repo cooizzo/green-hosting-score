@@ -13,7 +13,8 @@ Paste any URL → get a **letter grade**, estimated **gCO₂e** per page load, *
 | Phase 1 Greencheck + Website Carbon `/data` | Done |
 | Phase 2 fast crawl + Playwright accurate mode | Done |
 | Phase 3 GWF grid footnote + crawl-aware fixes | Done |
-| Rate limits / SVG badge | Not started |
+| Phase 4 SVG badge + embed snippet | Done |
+| Rate limits / API keys | Not started |
 
 ## Stack
 
@@ -36,7 +37,7 @@ App via Caddy: http://localhost
 
 Phase 2 measures transfer size (fast HTML+assets crawl; Playwright when you pick Accurate). Greencheck + Website Carbon `/data` (CO2.js fallback) produce the grade. Set `MOCK_SCORER=true` to skip live APIs.
 
-Accurate mode needs Chromium (`npx playwright install chromium` for local dev; Compose installs it in the app image).
+Accurate mode needs Chromium (`npx playwright install chromium` for local dev). Compose stores Chromium in the `playwright_browsers` volume and downloads it only when that volume is empty.
 
 ### Local dev (app only)
 

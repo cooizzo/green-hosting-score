@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { badgeAltText } from "@/lib/badge-svg";
+import { publicAppUrl } from "@/lib/public-url";
+import { CopyField } from "./copy-field";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +31,16 @@ export default async function ResultPage({ params }: Props) {
   if (!result) notFound();
 
   const fixes = Array.isArray(result.fixes) ? (result.fixes as string[]) : [];
+  const origin = await publicAppUrl();
+  const resultUrl = `${origin}/r/${result.slug}`;
+  const badgeUrl = `${origin}/badge/${result.slug}.svg`;
+  const alt = badgeAltText({
+    rating: result.rating,
+    hostname: result.hostname,
+    gco2e: result.gco2e,
+  });
+  const htmlEmbed = `<a href="${resultUrl}"><img src="${badgeUrl}" alt="${alt}" /></a>`;
+  const mdEmbed = `[![${alt}](${badgeUrl})](${resultUrl})`;
 
   return (
     <main className="page result-page">
@@ -74,6 +87,21 @@ export default async function ResultPage({ params }: Props) {
             <li key={f}>{f}</li>
           ))}
         </ol>
+      </section>
+
+      <section className="share-embed">
+        <h2>Share &amp; embed</h2>
+        <p className="badge-preview">
+          <a href={resultUrl}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={badgeUrl} alt={alt} height={20} />
+          </a>
+        </p>
+        <CopyField label="HTML" value={htmlEmbed} />
+        <CopyField label="Markdown" value={mdEmbed} />
+        <p className="embed-docs">
+          <Link href="/badge">How to embed the badge</Link>
+        </p>
       </section>
 
       <p className="muted">
