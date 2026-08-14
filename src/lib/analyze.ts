@@ -37,7 +37,7 @@ export async function analyzeUrl(input: AnalyzeInput) {
 
   const score: ScoreResult = useMockScorer()
     ? mockScore(safe.href, mode)
-    : await liveScore(safe.href, safe.hostname, mode);
+    : await liveScore(safe.href, safe.hostname, mode, safe.resolvedIps);
 
   const slug = makeResultSlug(safe.hostname);
   const now = new Date();

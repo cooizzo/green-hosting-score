@@ -12,7 +12,8 @@ Paste any URL → get a **letter grade**, estimated **gCO₂e** per page load, *
 | Phase 0 scaffold (Next.js + Compose + mock scorer) | Done |
 | Phase 1 Greencheck + Website Carbon `/data` | Done |
 | Phase 2 fast crawl + Playwright accurate mode | Done |
-| GWF grid footnote / rate limits / SVG badge | Not started |
+| Phase 3 GWF grid footnote + crawl-aware fixes | Done |
+| Rate limits / SVG badge | Not started |
 
 ## Stack
 

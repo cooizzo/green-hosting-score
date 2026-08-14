@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <a href="https://www.thegreenwebfoundation.org/" rel="noreferrer" target="_blank">
             The Green Web Foundation
           </a>{" "}
-          Greencheck.
+          Greencheck and IP → CO₂ intensity.
         </footer>
       </body>
     </html>

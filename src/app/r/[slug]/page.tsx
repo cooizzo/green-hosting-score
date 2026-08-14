@@ -12,6 +12,16 @@ function formatBytes(n: number) {
   return `${(n / (1024 * 1024)).toFixed(2)} MB`;
 }
 
+function formatGridFootnote(label: string | null, intensity: number | null) {
+  if (!label) return "—";
+  const [bucket, country] = label.split(" · ");
+  const words =
+    bucket === "clean" ? "Cleaner than average" : bucket === "dirty" ? "Dirtier than average" : "About average";
+  const place = country ? ` (${country})` : "";
+  const grams = intensity != null ? ` · ${Math.round(intensity)} gCO₂/kWh` : "";
+  return `${words}${place}${grams} — does not change the letter grade`;
+}
+
 export default async function ResultPage({ params }: Props) {
   const { slug } = await params;
   const result = await prisma.analysisResult.findUnique({ where: { slug } });
@@ -48,11 +58,8 @@ export default async function ResultPage({ params }: Props) {
           <p>{result.mode}</p>
         </div>
         <div>
-          <h2>Grid</h2>
-          <p>
-            {result.gridLabel ?? "—"}
-            {result.gridIntensity != null ? ` · ${result.gridIntensity} gCO₂/kWh` : ""}
-          </p>
+          <h2>Grid footnote</h2>
+          <p>{formatGridFootnote(result.gridLabel, result.gridIntensity)}</p>
         </div>
         <div>
           <h2>Cleaner than</h2>

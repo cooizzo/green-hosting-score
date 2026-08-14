@@ -1,7 +1,13 @@
 import type { Browser } from "playwright";
 import { logger } from "@/lib/logger";
 import { measureFast } from "@/lib/measure-fast";
-import type { MeasureResult } from "@/lib/measure-types";
+import {
+  classifyResource,
+  emptyHints,
+  isCompressedEncoding,
+  isThirdPartyHost,
+  type MeasureResult,
+} from "@/lib/measure-types";
 import { guardUrl } from "@/lib/url-guard";
 
 const ACCURATE_TIMEOUT_MS = 25_000;
@@ -81,9 +87,16 @@ async function measureWithPlaywright(url: string): Promise<MeasureResult> {
     });
 
     const page = await context.newPage();
+    const pageHost = new URL(url).hostname;
+    const thirdPartyHosts = new Set<string>();
     let bytes = 0;
     let resourceCount = 0;
     let htmlBytes = 0;
+    let largestImageBytes = 0;
+    let imageBytes = 0;
+    let scriptBytes = 0;
+    let thirdPartyBytes = 0;
+    let htmlCompressed: boolean | null = null;
 
     page.on("response", (response) => {
       try {
@@ -94,8 +107,30 @@ async function measureWithPlaywright(url: string): Promise<MeasureResult> {
         const size = Number.isFinite(cl) && cl > 0 ? cl : 0;
         bytes += size;
         resourceCount += 1;
-        if (response.request().resourceType() === "document" && htmlBytes === 0) {
+        const type = response.request().resourceType();
+        if (type === "document" && htmlBytes === 0) {
           htmlBytes = size;
+          htmlCompressed = isCompressedEncoding(headers["content-encoding"]);
+        }
+        const kind =
+          type === "image" || type === "media"
+            ? "image"
+            : type === "script"
+              ? "script"
+              : classifyResource(reqUrl, headers["content-type"]);
+        if (kind === "image") {
+          imageBytes += size;
+          if (size > largestImageBytes) largestImageBytes = size;
+        }
+        if (kind === "script") scriptBytes += size;
+        try {
+          const host = new URL(reqUrl).hostname;
+          if (isThirdPartyHost(host, pageHost)) {
+            thirdPartyBytes += size;
+            thirdPartyHosts.add(host);
+          }
+        } catch {
+          // ignore
         }
       } catch {
         // ignore individual response errors
@@ -140,6 +175,13 @@ async function measureWithPlaywright(url: string): Promise<MeasureResult> {
       htmlBytes: htmlBytes || nav?.encodedBodySize || 0,
       resourceCount: Math.max(resourceCount, perf.length + (nav ? 1 : 0)),
       mode: "accurate",
+      ...emptyHints(pageHost),
+      largestImageBytes,
+      imageBytes,
+      scriptBytes,
+      thirdPartyBytes,
+      thirdPartyCount: thirdPartyHosts.size,
+      htmlCompressed,
     };
   } finally {
     await context.close().catch(() => undefined);
