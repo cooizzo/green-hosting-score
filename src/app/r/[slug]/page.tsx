@@ -33,7 +33,15 @@ export default async function ResultPage({ params }: Props) {
         <p className="lede">
           ~{result.gco2e.toFixed(3)} gCO₂e per load · {formatBytes(result.bytes)} transferred
         </p>
-        {result.mocked && <p className="badge-warn">Mock score (Phase 0) — live APIs not wired yet</p>}
+        {result.mocked && (
+          <p className="badge-warn">Mock score — live Greencheck / Website Carbon skipped</p>
+        )}
+        {!result.mocked && (
+          <p className="badge-warn">
+            Green hosting and gCO₂e are live. Transfer size is still estimated until crawl / Playwright
+            land.
+          </p>
+        )}
       </section>
 
       <section className="meta-grid">

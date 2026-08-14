@@ -264,3 +264,11 @@ a {
   font-size: 0.9rem;
   word-break: break-all;
 }
+
+.site-footer {
+  padding: 0 1.5rem 1.5rem;
+  color: var(--fg-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  max-width: 40rem;
+}

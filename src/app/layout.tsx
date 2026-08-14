@@ -21,7 +21,20 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${display.variable} ${sans.variable}`}>{children}</body>
+      <body className={`${display.variable} ${sans.variable}`}>
+        {children}
+        <footer className="site-footer">
+          Estimates use{" "}
+          <a href="https://www.websitecarbon.com/" rel="noreferrer" target="_blank">
+            Website Carbon
+          </a>{" "}
+          and{" "}
+          <a href="https://www.thegreenwebfoundation.org/" rel="noreferrer" target="_blank">
+            The Green Web Foundation
+          </a>{" "}
+          Greencheck.
+        </footer>
+      </body>
     </html>
   );
 }

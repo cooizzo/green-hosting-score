@@ -1,3 +1,5 @@
+import { normalizeRating } from "@/lib/rating";
+
 export type MeasureMode = "fast" | "accurate";
 
 export type ScoreResult = {
@@ -11,8 +13,6 @@ export type ScoreResult = {
   fixes: string[];
   mocked: boolean;
 };
-
-const RATINGS = ["A+", "A", "B", "C", "D", "E", "F"] as const;
 
 function ratingFromBytes(bytes: number, green: boolean): string {
   // Rough Digital Carbon Rating-ish mapping for mock mode
@@ -33,14 +33,14 @@ function gco2eFromBytes(bytes: number, green: boolean): number {
   return bytes * kwhPerByte * gridFactor * 1000; // grams
 }
 
-function mockBytesForUrl(url: string, mode: MeasureMode): number {
+export function mockBytesForUrl(url: string, mode: MeasureMode): number {
   let h = 0;
   for (let i = 0; i < url.length; i++) h = (h * 31 + url.charCodeAt(i)) >>> 0;
   const base = 400_000 + (h % 3_500_000);
   return mode === "accurate" ? Math.round(base * 1.15) : base;
 }
 
-function mockFixes(bytes: number): string[] {
+export function mockFixes(bytes: number): string[] {
   const fixes: string[] = [];
   if (bytes > 2_000_000) fixes.push("Compress or resize large images — they dominate transfer size.");
   if (bytes > 1_000_000) fixes.push("Defer non-critical third-party scripts until after first paint.");
@@ -53,7 +53,7 @@ function mockFixes(bytes: number): string[] {
 
 /**
  * Phase 0 mock scorer — deterministic stand-in for measure + carbon APIs.
- * Set MOCK_SCORER=false when real integrations are ready.
+ * Set MOCK_SCORER=true to skip Greencheck / Website Carbon.
  */
 export function mockScore(url: string, mode: MeasureMode): ScoreResult {
   const bytes = mockBytesForUrl(url, mode);
@@ -66,7 +66,7 @@ export function mockScore(url: string, mode: MeasureMode): ScoreResult {
     bytes,
     green,
     gco2e,
-    rating: RATINGS.includes(rating as (typeof RATINGS)[number]) ? rating : "F",
+    rating: normalizeRating(rating, gco2e),
     cleanerThan: Number(cleanerThan.toFixed(2)),
     gridLabel: green ? "cleaner-than-average" : "average",
     gridIntensity: green ? 180 : 320,

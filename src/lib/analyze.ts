@@ -1,7 +1,8 @@
 import { MeasureMode } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { liveScore } from "@/lib/live-scorer";
 import { logger } from "@/lib/logger";
-import { mockScore, type MeasureMode as AppMode } from "@/lib/mock-scorer";
+import { mockScore, type MeasureMode as AppMode, type ScoreResult } from "@/lib/mock-scorer";
 import { makeResultSlug } from "@/lib/slug";
 import { guardUrl, UrlGuardError } from "@/lib/url-guard";
 
@@ -11,6 +12,10 @@ export type AnalyzeInput = {
   url: string;
   mode?: AppMode;
 };
+
+function useMockScorer(): boolean {
+  return process.env.MOCK_SCORER === "true";
+}
 
 export async function analyzeUrl(input: AnalyzeInput) {
   const mode: AppMode = input.mode === "accurate" ? "accurate" : "fast";
@@ -30,13 +35,10 @@ export async function analyzeUrl(input: AnalyzeInput) {
     return { result: cached, cached: true };
   }
 
-  const useMock = process.env.MOCK_SCORER !== "false";
-  if (!useMock) {
-    // Phase 1+: real measure + Website Carbon + Greencheck
-    throw new Error("Live scoring is not enabled yet; set MOCK_SCORER=true");
-  }
+  const score: ScoreResult = useMockScorer()
+    ? mockScore(safe.href, mode)
+    : await liveScore(safe.href, safe.hostname, mode);
 
-  const score = mockScore(safe.href, mode);
   const slug = makeResultSlug(safe.hostname);
   const now = new Date();
   const expiresAt = new Date(now.getTime() + CACHE_TTL_MS);
@@ -60,7 +62,7 @@ export async function analyzeUrl(input: AnalyzeInput) {
     },
   });
 
-  logger.info({ slug, mode, rating: score.rating }, "analysis created");
+  logger.info({ slug, mode, rating: score.rating, mocked: score.mocked }, "analysis created");
   return { result, cached: false };
 }
 
