@@ -1,5 +1,7 @@
 # Product brief — Green Hosting Score
 
+Placeholder name — final brand TBD ([decisions](./DECISIONS.md)).
+
 ## One-liner
 
 Enter any URL — get a carbon estimate for loading the page, adjusted for green hosting and grid context.
@@ -10,17 +12,25 @@ Enter any URL — get a carbon estimate for loading the page, adjusted for green
 
 ## MVP user flow
 
-1. Paste a URL on the home page.
+1. Paste a URL on the home page (optionally choose **fast** vs **accurate** measurement).
 2. See a result: letter grade, gCO₂e, bytes transferred, green-host yes/no, grid footnote, 3 plain fixes.
-3. Share `/r/:id` or embed an SVG badge.
+3. Share a **domain-slug** result URL or embed an SVG badge.
+4. Optionally sign in / use an API key for higher rate limits.
+
+## Auth & limits
+
+- **Anonymous:** 5 analyses / IP / day
+- **Authenticated (API key):** per-key quotas (exact paid tiers undecided)
+- Monetization: **undecided** — keep plumbing flexible
 
 ## Out of scope for v1
 
-- User accounts
+- Required accounts (auth is optional)
 - CI / GitHub Action
 - Leaderboards
 - Scheduled rescans
 - Multi-page site crawls
+- Final product brand name
 
 ## Later (post-MVP)
 
@@ -28,10 +38,13 @@ Enter any URL — get a carbon estimate for loading the page, adjusted for green
 - Industry leaderboards
 - CI check that fails a PR if the score tanks
 - Custom domains / team workspaces
+- Final naming + marketing site polish
+- Monetization model (if any)
 
 ## Success criteria (MVP)
 
-- Analyze a public URL end-to-end in under ~30s
-- Show grade + gCO₂e + green hosting + at least one grid note
-- Shareable `/r/:id` and working SVG badge
+- Analyze a public URL end-to-end in under ~30s (fast mode); accurate mode may take longer
+- Show grade + gCO₂e + green hosting + GWF grid note
+- Shareable domain-slug result URL and working SVG badge
 - Safe against basic SSRF
+- Enforce anonymous + API-key rate limits
