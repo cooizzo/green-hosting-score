@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ghs}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ghs}
+      POSTGRES_DB: ${POSTGRES_DB:-ghs}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ghs} -d ${POSTGRES_DB:-ghs}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    shm_size: "1gb"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ghs}:${POSTGRES_PASSWORD:-ghs}@postgres:5432/${POSTGRES_DB:-ghs}?schema=public
+      MOCK_SCORER: ${MOCK_SCORER:-false}
+      APP_URL: ${APP_URL:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+    volumes:
+      - playwright_browsers:/ms-playwright
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "3000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+  playwright_browsers:

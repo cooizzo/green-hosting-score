@@ -1,0 +1,16 @@
+---
+description: Rebuild and restart Docker Compose after app changes
+alwaysApply: true
+---
+
+# Docker stack
+
+After changing the app, always bring the stack back up with a rebuild so running containers match the working tree:
+
+```bash
+docker compose up --build -d
+```
+
+Wait until the app is ready (entrypoint may install Chromium on first run, then Prisma migrate + Next.js). Do not skip `--build` for Next.js, Prisma, or Dockerfile changes; a plain restart serves the old image.
+
+Chromium lives in the `playwright_browsers` volume and must not be re-downloaded on every image rebuild.
